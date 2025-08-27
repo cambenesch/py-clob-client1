@@ -90,7 +90,7 @@ from .utilities import (
 
 # CAM BEGIN
 import requests
-import pandas
+import pandas as pd
 from requests.adapters import HTTPAdapter
 
 class SourceIPHTTPAdapter(HTTPAdapter):
