@@ -4,7 +4,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="py_clob_client",
+    name="poly_clob_client",
     version="0.25.0",
     author="Polymarket Engineering",
     author_email="engineering@polymarket.com",
