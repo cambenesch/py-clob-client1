@@ -163,7 +163,7 @@ class ClobClient:
             adapter = SourceIPHTTPAdapter(self.source_ip)
             session.mount('http://', adapter)
             session.mount('https://', adapter)
-            # print(f"[DEBUG] Mounted SourceIPHTTPAdapter for {self.source_ip}")
+            print(f"[DEBUG] Mounted SourceIPHTTPAdapter for {self.source_ip}")
         else:
             print("[WARNING] No source_ip specified, using default session")
         return session
