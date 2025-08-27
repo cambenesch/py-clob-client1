@@ -90,6 +90,7 @@ from .utilities import (
 
 # CAM BEGIN
 import requests
+import pandas
 from requests.adapters import HTTPAdapter
 
 class SourceIPHTTPAdapter(HTTPAdapter):
@@ -403,13 +404,18 @@ class ClobClient:
         Creates and signs an order
         Level 1 Auth required
         """
+        print('start create order')
+        start_time = pd.Timestamp.now()
+        
         self.assert_level_1_auth()
+        print(f'asserted auth {round((pd.Timestamp.now() - start_time).total_seconds()*1000)}ms')
 
         # add resolve_order_options, or similar
         tick_size = self.__resolve_tick_size(
             order_args.token_id,
             options.tick_size if options else None,
         )
+        print(f'tick size {round((pd.Timestamp.now() - start_time).total_seconds()*1000)}ms')
 
         if not price_valid(order_args.price, tick_size):
             raise Exception(
@@ -420,24 +426,29 @@ class ClobClient:
                 + " - max: "
                 + str(1 - float(tick_size))
             )
+        print(f'price valid {round((pd.Timestamp.now() - start_time).total_seconds()*1000)}ms')
 
         neg_risk = (
             options.neg_risk
             if options and options.neg_risk
             else self.get_neg_risk(order_args.token_id)
         )
+        print(f'neg risk {round((pd.Timestamp.now() - start_time).total_seconds()*1000)}ms')
 
         # fee rate
         fee_rate_bps = self.__resolve_fee_rate(order_args.token_id, order_args.fee_rate_bps)
         order_args.fee_rate_bps = fee_rate_bps
+        print(f'fee rate {round((pd.Timestamp.now() - start_time).total_seconds()*1000)}ms')
 
-        return self.builder.create_order(
+        builder = self.builder.create_order(
             order_args,
             CreateOrderOptions(
                 tick_size=tick_size,
                 neg_risk=neg_risk,
             ),
         )
+        print(f'builder {round((pd.Timestamp.now() - start_time).total_seconds()*1000)}ms')
+        return builder
 
     def create_market_order(
         self,
