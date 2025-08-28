@@ -27,6 +27,7 @@ from ..clob_types import (
     OrderSummary,
     OrderType,
 )
+import pandas as pd
 
 ROUNDING_CONFIG: dict[TickSize, RoundConfig] = {
     "0.1": RoundConfig(price=1, size=2, amount=3),
@@ -122,12 +123,15 @@ class OrderBuilder:
         """
         Creates and signs an order
         """
+        start_time = pd.Timestamp.now()
+        print('  start builder create_order')
         side, maker_amount, taker_amount = self.get_order_amounts(
             order_args.side,
             order_args.size,
             order_args.price,
             ROUNDING_CONFIG[options.tick_size],
         )
+        print(f'  get amounts {round((pd.Timestamp.now() - start_time).total_seconds()*1000)}ms')
 
         data = OrderData(
             maker=self.funder,
@@ -142,18 +146,23 @@ class OrderBuilder:
             expiration=str(order_args.expiration),
             signatureType=self.sig_type,
         )
+        print(f'  made data {round((pd.Timestamp.now() - start_time).total_seconds()*1000)}ms')
 
         contract_config = get_contract_config(
             self.signer.get_chain_id(), options.neg_risk
         )
+        print(f'  contract config {round((pd.Timestamp.now() - start_time).total_seconds()*1000)}ms')
 
         order_builder = UtilsOrderBuilder(
             contract_config.exchange,
             self.signer.get_chain_id(),
             UtilsSigner(key=self.signer.private_key),
         )
+        print(f'  utilsorderbuilder {round((pd.Timestamp.now() - start_time).total_seconds()*1000)}ms')
 
-        return order_builder.build_signed_order(data)
+        builder = order_builder.build_signed_order(data)
+        print(f'  build_signed_order {round((pd.Timestamp.now() - start_time).total_seconds()*1000)}ms')
+        return builder
 
     def create_market_order(
         self, order_args: MarketOrderArgs, options: CreateOrderOptions
